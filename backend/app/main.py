@@ -1,7 +1,7 @@
 ﻿from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
 
-from app.config import settings
 from app.database import Base, engine
 from app.routers import analytics, exams, health, notifications, schedules, students, tasks
 
@@ -16,8 +16,8 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.backend_cors_origins,
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -29,3 +29,8 @@ app.include_router(exams.router)
 app.include_router(schedules.router)
 app.include_router(notifications.router)
 app.include_router(analytics.router)
+
+
+@app.get("/swagger", include_in_schema=False)
+def swagger_alias() -> RedirectResponse:
+    return RedirectResponse(url="/docs")

@@ -25,15 +25,24 @@ class ApiError extends Error {
   }
 }
 
-async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.headers || {}),
-    },
-    ...options,
-    cache: "no-store",
-  });
+async function request<T>(
+  path: string, options: RequestInit = {}): Promise<T> {
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      headers: {
+        "Content-Type": "application/json",
+        ...(options.headers || {}),
+      },
+      ...options,
+      cache: "no-store",
+    });
+  } catch {
+    throw new ApiError(
+      `Cannot reach backend at ${API_BASE_URL}. Make sure FastAPI is running and CORS allows this frontend origin.`,
+      0,
+    );
+  }
 
   if (!response.ok) {
     let detail = "Request failed";
